@@ -1,0 +1,3 @@
+[n_vertices] [n_edges]
+for each edge: [edge_origin] [edge_destination] [edge_weight]
+[starting_vertex] [destination_vertex]

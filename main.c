@@ -3,6 +3,8 @@
 #include <limits.h>
 #include <stdlib.h>
 
+#define GRAPH_FILE_PATH "./graphs/a.dat"
+
 struct edge
 {
     int vertex;
@@ -28,9 +30,9 @@ int main()
     int n_edges;
     int i;
 
-    // Create Graph ------------------------------------------
+    // Create Graph -----------------------------------------------------------
 
-    file_pointer = fopen("./input.dat", "r");
+    file_pointer = fopen(GRAPH_FILE_PATH, "r");
     fscanf(file_pointer, "%d %d\n", &n_vertices, &n_edges);
 
     // Initialize vertices
@@ -82,7 +84,7 @@ int main()
 
     fclose(file_pointer);
 
-    // Calculate shortest path ------------------------------------------
+    // Calculate shortest path ------------------------------------------------
 
     // initialize next vertex, closest distance variables
     int next_visit = origin_vertex;
@@ -129,19 +131,27 @@ int main()
         best_path = realloc(best_path, best_path_length * sizeof(int));
         best_path[best_path_length - 1] = current_visit;
     }
+
+    // Free vertices and edges from memory:
+    for (i = 0; i < n_vertices; i++)
+    {
+        free(vertices[i].edges);
+    }
+    free(vertices);
+
     // print answer
     printf("Best path:\n");
     for (i = best_path_length; i > 0; i--)
     {
         if (i != 1)
         {
-            printf("%d --> ", best_path[i - 1]);
+            printf("%d --> ", best_path[i - 1] + 1);
         }
         else
         {
-            printf("%d", best_path[0]);
+            printf("%d\n", best_path[0] + 1);
         }
     };
-
+    free(best_path);
     return 0;
 }
