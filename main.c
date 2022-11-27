@@ -86,12 +86,11 @@ int main()
 
     // Calculate shortest path ------------------------------------------------
 
-    // initialize next vertex, closest distance variables
+    // Initialize next vertex, closest distance variables
     int next_visit = origin_vertex;
     int current_visit = next_visit;
     while (current_visit != destination_vertex)
     {
-        int shortest_distance = INT_MAX;
         int n_neighbors = vertices[current_visit].n_edges;
         for (i = 0; i < n_neighbors; i++)
         {
@@ -109,18 +108,22 @@ int main()
                 vertices[neighbor->vertex].weight = new_distance;
                 vertices[neighbor->vertex].previous = current_visit;
             }
-            // Check if this is the closest neighbor to current vertex:
-            if (neighbor->weight < shortest_distance)
-            {
-                shortest_distance = neighbor->weight;
-                next_visit = neighbor->vertex;
-            }
         }
         vertices[current_visit].was_visited = true;
+        // Assign next visit
+        int smallest_vertex_weight = INT_MAX;
+        for (i = 0; i < n_vertices; i++) {
+            bool is_unvisited = !vertices[i].was_visited;
+            bool is_smallest_weight = vertices[i].weight < smallest_vertex_weight;
+            if (is_unvisited && is_smallest_weight) {
+                smallest_vertex_weight = vertices[i].weight;
+                next_visit = i;
+            }
+        }
         current_visit = next_visit;
         next_visit = -1;
     }
-    // retrace steps to get best path
+    // Retrace steps to get best path
     int best_path_length = 1;
     int *best_path = malloc(best_path_length * sizeof(int));
     best_path[0] = current_visit;
