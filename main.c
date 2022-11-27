@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <limits.h>
+#include <stdlib.h>
 
 struct edge
 {
@@ -21,8 +22,8 @@ int main()
 {
     struct vertex *vertices;
     FILE *file_pointer;
-    int start_vertex;
-    int end_vertex;
+    int origin_vertex;
+    int destination_vertex;
     int n_vertices;
     int n_edges;
     int i;
@@ -74,13 +75,73 @@ int main()
     }
 
     // Get starting and end vertices
-    fscanf(file_pointer, "%d %d\n", &start_vertex, &end_vertex);
-    start_vertex--;
-    end_vertex--;
+    fscanf(file_pointer, "%d %d\n", &origin_vertex, &destination_vertex);
+    origin_vertex--;
+    destination_vertex--;
+    vertices[origin_vertex].weight = 0;
 
     fclose(file_pointer);
 
     // Calculate shortest path ------------------------------------------
+
+    // initialize next vertex, closest distance variables
+    int next_visit = origin_vertex;
+    int current_visit = next_visit;
+    while (current_visit != destination_vertex)
+    {
+        int shortest_distance = INT_MAX;
+        int n_neighbors = vertices[current_visit].n_edges;
+        for (i = 0; i < n_neighbors; i++)
+        {
+            // Check if neighbor was visited before:
+            struct edge *neighbor = &(vertices[current_visit].edges[i]);
+            bool was_neighbor_visited = vertices[neighbor->vertex].was_visited;
+            if (was_neighbor_visited)
+            {
+                continue;
+            }
+            // Check if this edge is closer than current closest:
+            int new_distance = vertices[current_visit].weight + neighbor->weight;
+            if (new_distance < vertices[neighbor->vertex].weight)
+            {
+                vertices[neighbor->vertex].weight = new_distance;
+                vertices[neighbor->vertex].previous = current_visit;
+            }
+            // Check if this is the closest neighbor to current vertex:
+            if (neighbor->weight < shortest_distance)
+            {
+                shortest_distance = neighbor->weight;
+                next_visit = neighbor->vertex;
+            }
+        }
+        vertices[current_visit].was_visited = true;
+        current_visit = next_visit;
+        next_visit = -1;
+    }
+    // retrace steps to get best path
+    int best_path_length = 1;
+    int *best_path = malloc(best_path_length * sizeof(int));
+    best_path[0] = current_visit;
+    while (current_visit != origin_vertex)
+    {
+        current_visit = vertices[current_visit].previous;
+        best_path_length++;
+        best_path = realloc(best_path, best_path_length * sizeof(int));
+        best_path[best_path_length - 1] = current_visit;
+    }
+    // print answer
+    printf("Best path:\n");
+    for (i = best_path_length; i > 0; i--)
+    {
+        if (i != 1)
+        {
+            printf("%d --> ", best_path[i - 1]);
+        }
+        else
+        {
+            printf("%d", best_path[0]);
+        }
+    };
 
     return 0;
 }
